@@ -211,8 +211,9 @@ def baidu_trans(app_id, app_key, text):
 
 # do translation
 # parameter: provider, app_id, app_key, text
-# return: translated_text
-# has_new_data: for javascript side
+# return: translated_text, translated_text, translated_text
+# return it 3 times to send result to 3 different textbox.
+# This is a hacking way to let txt2img and img2img get the translated result
 def do_trans(provider, app_id, app_key, text):
     if provider not in trans_setting.keys():
         print("can not find provider: ")
@@ -229,7 +230,7 @@ def do_trans(provider, app_id, app_key, text):
         print("can not find provider: ")
         print(provider)
 
-    return [translated_text, True]
+    return [translated_text, translated_text, translated_text]
 
 
 # send translated prompt to txt2img and img2img
@@ -345,7 +346,7 @@ def on_ui_tabs():
 
     with gr.Blocks(analytics_enabled=False) as prompt_translator:
         # ====ui====
-        gr.HTML("<p style=\"margin-bottom:0.75em\">Translate prompt and negative prompt from your native language into English. So, you can write prompt and negative prompt with your native language.</p>")
+        gr.HTML("<p style=\"margin-bottom:0.75em\">It will translate prompt from your native language into English. So, you can write prompt with your native language.</p>")
         # gr.HTML("<br />")
         
         # Prompt Area
@@ -356,25 +357,21 @@ def on_ui_tabs():
         with gr.Row():
             trans_prompt_btn = gr.Button(value="Translate", elem_id="pt_trans_prompt_btn")
             send_prompt_btn = gr.Button(value="Send to txt2img and img2img", elem_id="pt_send_prompt_btn")
-            # hidden checkbox for javascript
-            has_new_translated_prompt = gr.Checkbox(label="Has new data", value=False, visible=False, elem_id="pt_has_new_translated_prompt")
+
 
         with gr.Row():
-            neg_prompt = gr.Textbox(label="Negative Prompt", lines=2, value="", elem_id="pt_neg_prompy")
+            neg_prompt = gr.Textbox(label="Negative Prompt", lines=2, value="", elem_id="pt_neg_prompt")
             translated_neg_prompt = gr.Textbox(label="Translated Negative Prompt", lines=2, value="", elem_id="pt_translated_neg_prompt")
 
         with gr.Row():
             trans_neg_prompt_btn = gr.Button(value="Translate", elem_id="pt_trans_neg_prompt_btn")
             send_neg_prompt_btn = gr.Button(value="Send to txt2img and img2img", elem_id="pt_send_neg_prompt_btn")
-            # hidden checkbox for javascript
-            has_new_trans_neg_prompt = gr.Checkbox(label="Has new data", value=False, visible=False, elem_id="pt_has_new_trans_neg_prompt")
 
-        gr.HTML("<br />")
+
         gr.HTML("<hr />")
-        gr.HTML("<br />")
 
         # Translation Service Setting
-        gr.HTML("<p style=\"margin-bottom:0.75em;font-size:20px\">Translation Service Setting</p>")
+        gr.HTML("<p style=\"margin-top:0.75em;font-size:20px\">Translation Service Setting</p>")
         provider = gr.Dropdown(choices=providers, value=provider_name, label="Provider", elem_id="pt_provider")
         app_id = gr.Textbox(label="APP ID", lines=1, value=trans_setting[provider_name]["app_id"], elem_id="pt_app_id")
         app_key = gr.Textbox(label="APP KEY", lines=1, value=trans_setting[provider_name]["app_key"], elem_id="pt_app_key")
@@ -386,8 +383,8 @@ def on_ui_tabs():
 
         # ====events====
         # Prompt
-        trans_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, prompt], outputs=[translated_prompt, has_new_translated_prompt])
-        trans_neg_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, neg_prompt], outputs=[translated_neg_prompt, has_new_trans_neg_prompt])
+        trans_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, prompt], outputs=[translated_prompt, txt2img_prompt, img2img_prompt])
+        trans_neg_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, neg_prompt], outputs=[translated_neg_prompt, txt2img_neg_prompt, img2img_neg_prompt])
 
         send_prompt_btn.click(do_send_prompt, inputs=translated_prompt, outputs=[txt2img_prompt, img2img_prompt])
         send_neg_prompt_btn.click(do_send_prompt, inputs=translated_neg_prompt, outputs=[txt2img_neg_prompt, img2img_neg_prompt])
