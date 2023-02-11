@@ -75,6 +75,7 @@ config_file_name = os.path.join(scripts.basedir(), "prompt_translator.cfg")
 # parameter: app_key, text
 # return: translated_text
 def deepl_trans(app_key, text):
+    print("Getting data for deepl")
     # check error
     if not app_key:
         print("app_key can not be empty")
@@ -86,18 +87,26 @@ def deepl_trans(app_key, text):
 
 
     # set http request
-    headers = {"Authorization": "DeepL-Auth-Key "+app_key+":fx"}
+    headers = {"Authorization": "DeepL-Auth-Key "+app_key}
     data ={
         "text":text,
         "target_lang":"EN"
     }
 
-    r = requests.post(trans_providers["deepl"]["url"], data = data, headers = headers)
+    print("Sending request")
+    r = None
+    try:
+        r = requests.post(trans_providers["deepl"]["url"], data = data, headers = headers, timeout=10)
+    except Exception as e:
+        print("request get error, check your network")
+        print(str(e))
+        return ""
 
+    print("checking response")
     # check error
     # refer: https://www.deepl.com/docs-api/api-access/general-information/
     if r.status_code >= 300 or r.status_code < 200:
-        print("Return Error code from DeepL: " + str(r.status_code))
+        print("Get Error code from DeepL: " + str(r.status_code))
         if r.status_code == 429:
             print("too many requests")
         elif r.status_code == 456:
@@ -123,9 +132,9 @@ def deepl_trans(app_key, text):
     # try to get text from content
     translated_text = ""
     if content:
-        if content["translations"]:
-            if content["translations"][0]:
-                if content["translations"][0]["text"]:
+        if "translations" in content.keys():
+            if len(["translations"]):
+                if "text" in content["translations"][0].keys():
                     translated_text = content["translations"][0]["text"]
 
     if not translated_text:
@@ -142,6 +151,7 @@ def deepl_trans(app_key, text):
 # parameter: app_id, app_key, text
 # return: translated_text
 def baidu_trans(app_id, app_key, text):
+    print("Getting data for baidu")
     # check error
     if not app_id:
         print("app_id can not be empty")
@@ -162,7 +172,14 @@ def baidu_trans(app_id, app_key, text):
 
     request_link = trans_providers["baidu"]["url"]+"?q="+text+"&from=auto&to=en&appid="+app_id+"&salt="+salt+"&sign="+sign_md5
 
-    r = requests.get(request_link)
+    print("Sending request")
+    r = None
+    try:
+        r = requests.get(request_link)
+    except Exception as e:
+        print("request get error, check your network")
+        print(str(e))
+        return ""
 
     # try to get content
     content = None
@@ -193,18 +210,15 @@ def baidu_trans(app_id, app_key, text):
 
     # try to get text from content
     translated_text = ""
-    if content["trans_result"]:
-        if content["trans_result"][0]:
-            if content["trans_result"][0]["dst"]:
+    if "trans_result" in content.keys():
+        if len(content["trans_result"]):
+            if "dst" in content["trans_result"][0].keys():
                 translated_text = content["trans_result"][0]["dst"]
 
     if not translated_text:
-        print("can not read tralstated text from response:")
+        print("can not read translated text from response:")
         print(r.text)
         return ""
-
-    print("translated_text:")
-    print(translated_text)
 
     return translated_text
 
@@ -215,6 +229,11 @@ def baidu_trans(app_id, app_key, text):
 # return it 3 times to send result to 3 different textbox.
 # This is a hacking way to let txt2img and img2img get the translated result
 def do_trans(provider, app_id, app_key, text):
+    print("====Translation start====")
+    print("Use Serivce: " + provider)
+    print("Source Prompt:")
+    print(text)
+
     if provider not in trans_setting.keys():
         print("can not find provider: ")
         print(provider)
@@ -230,6 +249,10 @@ def do_trans(provider, app_id, app_key, text):
         print("can not find provider: ")
         print(provider)
 
+    
+    print("Translated result:")
+    print(translated_text)
+
     return [translated_text, translated_text, translated_text]
 
 
@@ -244,6 +267,7 @@ def do_send_prompt(translated_text):
 # return:
 # trans_setting: a parsed json object as python dict with same structure as globel trans_setting object
 def save_trans_setting(provider, app_id, app_key):
+    print("Saving tranlation service setting...")
     # write data into globel trans_setting
     global trans_setting
 
@@ -300,8 +324,8 @@ def load_trans_setting():
         return
     
     for key in trans_setting.keys():
-        if not data[key]:
-            print("can not find " + key +"section in config file")
+        if key not in data.keys():
+            print("can not find " + key +" section in config file")
             return
 
     # set value
@@ -397,4 +421,5 @@ def on_ui_tabs():
     return (prompt_translator , "Prompt Translator", "prompt_translator"),
 
 script_callbacks.on_ui_tabs(on_ui_tabs)
+
 
