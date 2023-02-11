@@ -51,12 +51,25 @@ function sleep(ms) {
     let img2img_tab = null;
     //extension's tab
     let pt_tab = null;
+
+    //must get localized text here
+    //getTranslation(txt) is a global js function used by SD webui to get localized word
+    let txt2img_txt = getTranslation("txt2img");
+    if (!txt2img_txt){txt2img_txt = "txt2img"}
+
+    let img2img_txt = getTranslation("img2img");
+    if (!img2img_txt){img2img_txt = "img2img"}
+
+    let pt_txt = getTranslation("Prompt Translator");
+    if (!pt_txt){pt_txt = "Prompt Translator"}
+    
+
     for (let button of tabs.getElementsByTagName("button")) {
-        if (button.innerHTML.trim() == "txt2img") {
+        if (button.innerHTML.trim() == txt2img_txt) {
             txt2img_tab = button
-        } else if (button.innerHTML.trim() == "img2img") {
+        } else if (button.innerHTML.trim() == img2img_txt) {
             img2img_tab = button
-        } else if (button.innerHTML.trim() == "Prompt Translator") {
+        } else if (button.innerHTML.trim() == pt_txt) {
             pt_tab = button
         }
     }
