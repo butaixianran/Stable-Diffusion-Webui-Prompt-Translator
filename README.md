@@ -53,17 +53,16 @@ Move your mouse onto those buttons, they will show tooltips. Like following:
 For example,  we filled prompt with asian language, then click "Translate" button. 
 ![](img/txt2img00.jpg)  
 
-It will translate your prompt then translated prompt back. Also willsave your native language prompt into memory.  
+It will translate your prompt then fill translated words back. And save your native language prompt into memory.  
 ![](img/txt2img01.jpg)  
 
-Now, you can click switch button to switch between your native language prompt and translated English as you wish.  
+You can click switch button to switch between your native language prompt and translated English as you wish.  
 ![](img/txt2img02.jpg)  
 
-So, you can use the translated English for generating. 
+Now, you can use the translated English for generating. 
 
-Following is the first group of pictures generated with AI translated English.
+Following is generated images with AI translated English.
 ![](img/generated_demo.jpg)  
-
 
 If you go to img2img, you need to check the checkbox on toolbar. Otherwise this extension can not know which tab is active. And check it to off, after you're back to txt2img tab. 
 
