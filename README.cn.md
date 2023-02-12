@@ -14,15 +14,12 @@
 
 免费额度上，deepl每月免费提供50万字符。百度免费提供5万字每月，都够用了。  
 
-对于Deepl，申请之后，前往帐号详情，API key在页面最下方:
+对于百度，在[百度翻译API](http://api.fanyi.baidu.com/)网站申请之后，申请之后，去右上角，你的帐号的“开发者信息”页面，最上面就是:
 
-![](img/deepl_acount.jpg)
+![](img/baidu_appkey.jpg)
 
-![](img/deepl_appkey.jpg)
 
-如果你在中国，就用 [百度翻译API](http://api.fanyi.baidu.com/)。操作方法也是类似。 
-
-在插件页面，填入APP Key并保存后，有2种方式使用本插件:
+在插件页面，翻译引擎选百度，填入APP ID 和 APP Key并保存即可。接下来有两种方式使用本插件:
 
 ## 在插件Tab界面用
 ![extension_tab](img/extension_tab.jpg)
