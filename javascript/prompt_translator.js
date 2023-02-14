@@ -147,6 +147,7 @@ function sleep(ms) {
     }
 
 
+
     
     //set toolbar
     let toolbar = document.createElement("div");
@@ -197,7 +198,16 @@ function sleep(ms) {
     deepl_link.target = "_blank";
     deepl_link.style.border = "none";
 
+    //checkbox for active tab
+    let ckb_box = document.createElement("span");
 
+    let ckb = document.createElement("input");
+    ckb.type = "checkbox";
+
+    let ckb_label = document.createElement("span");
+    ckb_label.innerHTML = " is img2img?";
+    ckb_box.appendChild(ckb);
+    ckb_box.appendChild(ckb_label);
 
     //add buttons to toolbar
     toolbar.appendChild(trans_prompt_btn);
@@ -205,10 +215,66 @@ function sleep(ms) {
     toolbar.appendChild(switch_prompt_btn);
     toolbar.appendChild(switch_neg_prompt_btn);
     toolbar.appendChild(deepl_link);
+    toolbar.appendChild(ckb_box);
     
+
+    //failed, can not get re-newed class name
+    //find active tab by tab button's class name
+    //if "border-transparent" is not in tab button's class name, then this tab is active
+    //then set propmt to that tab's prompt textarea
+    function set_prompt_by_active_tab() {
+        console.log("set_prompt_by_active_tab");
+        if (!txt2img_tab) {
+            console.log("txt2img_tab is none");
+            return
+        }
+
+        if (!img2img_tab) {
+            console.log("img2img_tab is none");
+            return
+        }
+
+        console.log("txt2img_tab.classList:");
+        console.log(txt2img_tab.classList);
+        console.log(txt2img_tab.className);
+        console.log("img2img_tab.classList:");
+        console.log(img2img_tab.classList);
+        console.log(txt2img_tab.className);
+        
+        if(!txt2img_tab.classList.contains('border-transparent')){
+            console.log('txt2img_tab is active');
+            active_tab = "txt2img";
+            prompt = txt2img_prompt;
+            neg_prompt = txt2img_neg_prompt;
+
+        } else if (!img2img_tab.classList.contains('border-transparent')) {
+            console.log('img2img_tab is active');
+            active_tab = "img2img";
+            prompt = img2img_prompt;
+            neg_prompt = img2img_neg_prompt;
+        } 
+
+    }
+
+    //add click to checkbox
+    ckb.onclick = function(){
+        if (ckb.checked) {
+            //is img2img
+            console.log('use img2img_tab');
+            active_tab = "img2img";
+            prompt = img2img_prompt;
+            neg_prompt = img2img_neg_prompt;            
+        } else {
+            console.log('use txt2img_tab');
+            active_tab = "txt2img";
+            prompt = txt2img_prompt;
+            neg_prompt = txt2img_neg_prompt;
+        }
+    };
 
     //add click to button
     trans_prompt_btn.onclick = function(){
+
         if (!prompt.value) {
             console.log('text can not be empty');
             return
@@ -225,10 +291,12 @@ function sleep(ms) {
     };
 
     trans_neg_prompt_btn.onclick = function(){
+
         if (!neg_prompt.value) {
             console.log('text can not be empty');
             return
         }
+
         //copy prompt to extension tab's prompt
         pt_neg_prompt.value = neg_prompt.value;
         //trigger events
