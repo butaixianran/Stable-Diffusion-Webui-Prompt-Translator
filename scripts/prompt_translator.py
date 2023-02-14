@@ -49,6 +49,10 @@ trans_providers = {
         "url":"https://fanyi-api.baidu.com/api/trans/vip/translate",
         "has_id": True
     },
+    "yandex": {
+        "url": "https://api-free.deepl.com/v2/translate",
+        "has_id": False
+    },
 }
 
 # user's translation service setting
@@ -60,6 +64,11 @@ trans_setting = {
     },
     "baidu": {
         "is_default":False,
+        "app_id": "",
+        "app_key": ""
+    },
+    "yandex": {
+        "is_default": True,
         "app_id": "",
         "app_key": ""
     },
@@ -222,6 +231,80 @@ def baidu_trans(app_id, app_key, text):
 
     return translated_text
 
+# yandex translator
+# refer: https://cloud.yandex.ru/docs/translate/operations/translate
+# parameter: folder_id, IAM_TOKEN, text
+# return: translated_text
+def yandex_trans(IAM_TOKEN, folder_id, text):
+    print("Getting data for yandex")
+
+    # check error
+    if not IAM_TOKEN:
+        print("IAM_TOKEN can not be empty")
+        return ""
+
+    if not folder_id:
+        print("folder_id can not be empty")
+        return ""
+
+    # set http request
+    body = {
+        "targetLanguageCode": 'en',
+        "texts": text,
+        "folderId": folder_id,
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {0}".format(IAM_TOKEN)
+    }
+    print("Sending request")
+    r = None
+    try:
+        r = requests.post('https://translate.api.cloud.yandex.net/translate/v2/translate',
+                          json=body,
+                          headers=headers
+                          )
+    except Exception as e:
+        print("request get error, check your network")
+        print(str(e))
+        return ""
+
+    print("checking response")
+    if r.status_code >= 300 or r.status_code < 200:
+        print("Get Error code: " + str(r.status_code))
+        if r.status_code == 429:
+            print("too many requests")
+        elif r.status_code == 456:
+            print("quota exceeded")
+        elif r.status_code >= 500:
+            print("temporary errors in the service")
+        return ""
+
+    content = None
+    try:
+        content = r.json()
+
+    except Exception as e:
+        print("Parse response json failed")
+        print(str(e))
+        print("response:")
+        print(r.text)
+        # return ""
+
+    translated_text = ""
+    if content:
+        if "translations" in content.keys():
+            if len(["translations"]):
+                if "text" in content["translations"][0].keys():
+                    translated_text = content["translations"][0]["text"]
+
+    if not translated_text:
+        print("can not read tralstated text from response:")
+        print(r.text)
+        # return ""
+
+    return translated_text
 
 # do translation
 # parameter: provider, app_id, app_key, text
@@ -245,6 +328,8 @@ def do_trans(provider, app_id, app_key, text):
         translated_text = deepl_trans(app_key, text)
     elif provider == "baidu":
         translated_text = baidu_trans(app_id, app_key, text)
+    elif provider == "yandex":
+        translated_text = yandex_trans(app_id, app_key, text)
     else:
         print("can not find provider: ")
         print(provider)
@@ -364,8 +449,15 @@ def on_ui_tabs():
         visible = False
         if provider != "deepl":
             visible = True
-        
-        return [app_id.update(visible=visible, value=trans_setting[provider]["app_id"]), app_key.update(value=trans_setting[provider]["app_key"])]
+
+        if provider == "yandex":
+            new_id_label = "IAM_TOKEN"
+            new_key_label = "FOLDER_ID"
+        else:
+            new_id_label = "APP ID"
+            new_key_label = "APP KEY"
+
+        return [app_id.update(visible=visible, value=trans_setting[provider]["app_id"], label=new_id_label), app_key.update(value=trans_setting[provider]["app_key"], label=new_key_label)]
 
 
     with gr.Blocks(analytics_enabled=False) as prompt_translator:
