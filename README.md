@@ -15,7 +15,7 @@ Then, Reload Stable-Diffusion-Webui. Done.
 ## Set translation API Key
 This extension uses Online AI translator service [Deepl.com](https://www.deepl.com), [Google](https://cloud.google.com/translate/docs/setup?hl=en) or [Baidu](http://api.fanyi.baidu.com/)(for Chinese)'s API to translate your pormpt.  
 
-That means, you need go to those translation website, apply a free API Key for this. 
+That means, you need go to those translation website, apply a free API Key for this. Fill your API Key to this extension's tab page, click save, done.
 
 (For baidu, check [README.cn.md](README.cn.md))
 
@@ -50,7 +50,7 @@ After you get your APP Key, fill it into this extension's tab page, then click s
 
 If you are in China, just choose [Baidu](http://api.fanyi.baidu.com/). 
 
-Now, you have 2 ways to translate your prompt:
+**Now, you have 2 ways to translate your prompt:**
 
 ## Use extension tab
 ![extension_tab](img/extension_tab.jpg)
