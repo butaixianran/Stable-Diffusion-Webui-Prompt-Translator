@@ -361,11 +361,8 @@ def on_ui_tabs():
 
     # ====Event's function====
     def set_provider(provider):
-        visible = False
-        if provider != "deepl":
-            visible = True
-        
-        return [app_id.update(visible=visible, value=trans_setting[provider]["app_id"]), app_key.update(value=trans_setting[provider]["app_key"])]
+        app_id_visible =  trans_providers[provider]['has_id']
+        return [app_id.update(visible=app_id_visible, value=trans_setting[provider]["app_id"]), app_key.update(value=trans_setting[provider]["app_key"])]
 
 
     with gr.Blocks(analytics_enabled=False) as prompt_translator:
@@ -402,8 +399,7 @@ def on_ui_tabs():
         save_trans_setting_btn = gr.Button(value="Save Setting")
 
         # deepl do not need appid
-        if provider.value=="deepl":
-            app_id.visible = False
+        app_id.visible = trans_providers[key]['has_id']
 
         # ====events====
         # Prompt
