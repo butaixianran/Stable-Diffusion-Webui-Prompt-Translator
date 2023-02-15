@@ -13,7 +13,9 @@ Then, Reload Stable-Diffusion-Webui. Done.
 
 # How to use
 ## Set translation API Key
-This extension uses Online AI translator service [Deepl.com](https://www.deepl.com) or [Baidu](http://api.fanyi.baidu.com/)(for Chinese)'s API to translate your pormpt.  
+(For baidu, check [README.cn.md](README.cn.md))
+### Setup for Deepl
+This extension uses Online AI translator service [Deepl.com](https://www.deepl.com), [Google](https://cloud.google.com/translate/docs/setup?hl=en) or [Baidu](http://api.fanyi.baidu.com/)(for Chinese)'s API to translate your pormpt.  
 
 That means, you need go to those translation website, apply a free API Key for this.  
 
@@ -32,7 +34,8 @@ After you get your APP Key, fill it into this extension's tab page, then click s
 Now, you have 2 ways to translate your prompt:
 
 
-## Set Google translation API Key [check](https://cloud.google.com/translate/docs/setup?hl=en)
+### Setup for Google translation API Key [check](https://cloud.google.com/translate/docs/setup?hl=en)
+**Note: Google API does not offer any free words per month, and setup is kind of complex for normal user. Only choose google when you can not use other service.**  
 
 ![](./img/google-translation-01.png)
 ![](./img/google-translation-02.png)
@@ -46,7 +49,6 @@ Now, you have 2 ways to translate your prompt:
     - after "Cloud Translation API" click "MANAGE"
     - select PROEJCT, and godo "API/Service Details" 
     - click "CREDENTIALS" tab and click "CREATED CREDENTIALS"
-
 
 
 
