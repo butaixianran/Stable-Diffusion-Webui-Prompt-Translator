@@ -28,12 +28,8 @@ After applying the API, go to your acount, the API key is at the bottom like fol
 
 ![](img/deepl_appkey.jpg)
 
-If you are in China, just choose [Baidu](http://api.fanyi.baidu.com/). 
 
 After you get your APP Key, fill it into this extension's tab page, then click save. 
-
-Now, you have 2 ways to translate your prompt:
-
 
 ### Setup for Google translation API Key [check](https://cloud.google.com/translate/docs/setup?hl=en)
 **Note: Google API does not offer any free words per month, and setup is kind of complex for normal user. Only choose google when you can not use other service.**  
@@ -52,6 +48,9 @@ Now, you have 2 ways to translate your prompt:
     - click "CREDENTIALS" tab and click "CREATED CREDENTIALS"
 
 
+If you are in China, just choose [Baidu](http://api.fanyi.baidu.com/). 
+
+Now, you have 2 ways to translate your prompt:
 
 ## Use extension tab
 ![extension_tab](img/extension_tab.jpg)
