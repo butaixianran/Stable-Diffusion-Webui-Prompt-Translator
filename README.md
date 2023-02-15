@@ -13,12 +13,13 @@ Then, Reload Stable-Diffusion-Webui. Done.
 
 # How to use
 ## Set translation API Key
-(For baidu, check [README.cn.md](README.cn.md))
-### Setup for Deepl
 This extension uses Online AI translator service [Deepl.com](https://www.deepl.com), [Google](https://cloud.google.com/translate/docs/setup?hl=en) or [Baidu](http://api.fanyi.baidu.com/)(for Chinese)'s API to translate your pormpt.  
 
-That means, you need go to those translation website, apply a free API Key for this.  
+That means, you need go to those translation website, apply a free API Key for this. 
 
+(For baidu, check [README.cn.md](README.cn.md))
+
+### Setup for Deepl
 With deepl, it offers you 500,000 character/month for free. That's more than enough.  
 
 After applying the API, go to your acount, the API key is at the bottom like following:
