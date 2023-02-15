@@ -31,6 +31,25 @@ After you get your APP Key, fill it into this extension's tab page, then click s
 
 Now, you have 2 ways to translate your prompt:
 
+
+## Set Google translation API Key [check](https://cloud.google.com/translate/docs/setup?hl=en)
+
+![](./img/google-translation-01.png)
+![](./img/google-translation-02.png)
+
+1. create GCP project([check](https://cloud.google.com/resource-manager/docs/creating-managing-projects?hl=en))
+2. enable "Cloud Translation API" 
+    - search "translation" 
+    - click "Cloud Translation API"
+    - click "ENABLE"
+3. create "API Key"
+    - after "Cloud Translation API" click "MANAGE"
+    - select PROEJCT, and godo "API/Service Details" 
+    - click "CREDENTIALS" tab and click "CREATED CREDENTIALS"
+
+
+
+
 ## Use extension tab
 ![extension_tab](img/extension_tab.jpg)
 
