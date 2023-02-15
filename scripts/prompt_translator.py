@@ -31,6 +31,7 @@ import hashlib
 import json
 import modules
 from modules import script_callbacks
+from scripts.services import GoogleTranslateInputSchema,GoogleTranslationService
 
 # from modules import images
 # from modules.processing import process_images, Processed
@@ -49,6 +50,10 @@ trans_providers = {
         "url":"https://fanyi-api.baidu.com/api/trans/vip/translate",
         "has_id": True
     },
+    "google": {
+        "url":"https://translation.googleapis.com",
+        "has_id": False
+    },
 }
 
 # user's translation service setting
@@ -59,6 +64,11 @@ trans_setting = {
         "app_key": ""
     },
     "baidu": {
+        "is_default":False,
+        "app_id": "",
+        "app_key": ""
+    },
+    "google": {
         "is_default":False,
         "app_id": "",
         "app_key": ""
@@ -245,6 +255,9 @@ def do_trans(provider, app_id, app_key, text):
         translated_text = deepl_trans(app_key, text)
     elif provider == "baidu":
         translated_text = baidu_trans(app_id, app_key, text)
+    elif provider == "google":
+        service = GoogleTranslationService(app_key)
+        translated_text = service.translate(text=text)
     else:
         print("can not find provider: ")
         print(provider)
