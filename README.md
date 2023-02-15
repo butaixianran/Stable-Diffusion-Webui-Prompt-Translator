@@ -5,7 +5,11 @@
 This Stable-Diffusion-Webui's extension can translate prompt from your native language into English, so from now on, you can write prompt with your native language.
 
 # Install
-Download this project as `.zip` file. Unzip it to `Your Stable-Diffusion-Webui/extensions` folder. Reload Stable-Diffusion-Webui. Done. 
+GO to SD webui's extension page, choose install from github url. Fill it with this project's url, click install.
+
+(If you can not connect to github, you can just download this project as `.zip` file. Unzip it to `Your Stable-Diffusion-Webui/extensions` folder.)
+
+Then, Reload Stable-Diffusion-Webui. Done. 
 
 # How to use
 ## Set translation API Key
