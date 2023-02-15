@@ -31,7 +31,7 @@ import hashlib
 import json
 import modules
 from modules import script_callbacks
-from scripts.services import GoogleTranslateInputSchema,GoogleTranslationService
+from scripts.services import GoogleTranslationService
 
 # from modules import images
 # from modules.processing import process_images, Processed

@@ -1,15 +1,12 @@
-
-from typing import List
+from typing import Dict
 from dataclasses import dataclass
-from dataclasses_json import dataclass_json
 
 
-
-
-@dataclass_json
 @dataclass
 class GoogleTranslateInputSchema:
     q: str
     target: str
     format: str = "text"
-
+    
+    def to_dict(self)-> Dict:
+        return dict(q=self.q,target=self.target,format=self.format)
