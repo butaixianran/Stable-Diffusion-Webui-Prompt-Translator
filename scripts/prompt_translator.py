@@ -427,7 +427,7 @@ def on_ui_tabs():
 
         gr.HTML("<p style=\"margin-top:0.75em;font-size:20px\">Translation Service Setting</p>")
         provider = gr.Dropdown(choices=providers, value=provider_name, label="Provider", elem_id="pt_provider")
-        app_id = gr.Textbox(label="APP ID", lines=1, value=trans_setting[provider_name]["app_id"], visible=trans_providers[provider_name]['has_id'], elem_id="pt_app_id")
+        app_id = gr.Textbox(label="APP ID", lines=1, value=trans_setting[provider_name]["app_id"], elem_id="pt_app_id")
         app_key = gr.Textbox(label="APP KEY", lines=1, value=trans_setting[provider_name]["app_key"], elem_id="pt_app_key")
         save_trans_setting_btn = gr.Button(value="Save Setting")
 
