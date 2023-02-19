@@ -113,21 +113,25 @@ function sleep(ms) {
     let pt_prompt = gradioApp().getElementById("pt_prompt").getElementsByTagName("textarea")[0];
     let pt_translated_prompt = gradioApp().getElementById("pt_translated_prompt").getElementsByTagName("textarea")[0];
     let pt_trans_prompt_btn = gradioApp().getElementById("pt_trans_prompt_btn");
+    let pt_trans_prompt_js_btn = gradioApp().getElementById("pt_trans_prompt_js_btn");
     let pt_send_prompt_btn = gradioApp().getElementById("pt_send_prompt_btn");
 
     let pt_neg_prompt = gradioApp().getElementById("pt_neg_prompt").getElementsByTagName("textarea")[0];
     let pt_translated_neg_prompt = gradioApp().getElementById("pt_translated_neg_prompt").getElementsByTagName("textarea")[0];
     let pt_trans_neg_prompt_btn = gradioApp().getElementById("pt_trans_neg_prompt_btn");
+    let pt_trans_neg_prompt_js_btn = gradioApp().getElementById("pt_trans_neg_prompt_js_btn");
     let pt_send_neg_prompt_btn = gradioApp().getElementById("pt_send_neg_prompt_btn");
 
     if (!pt_prompt) {console.log("can not find extension's pt_prompt");return}
     if (!pt_translated_prompt) {console.log("can not find extension's pt_translated_prompt");return}
     if (!pt_trans_prompt_btn) {console.log("can not find extension's pt_trans_prompt_btn");return}
+    if (!pt_trans_prompt_js_btn) {console.log("can not find extension's pt_trans_prompt_js_btn");return}
     if (!pt_send_prompt_btn) {console.log("can not find extension's pt_send_prompt_btn");return}
 
     if (!pt_neg_prompt) {console.log("can not find extension's pt_neg_prompt");return}
     if (!pt_translated_neg_prompt) {console.log("can not find extension's pt_translated_neg_prompt");return}
     if (!pt_trans_neg_prompt_btn) {console.log("can not find extension's pt_trans_neg_prompt_btn");return}
+    if (!pt_trans_neg_prompt_js_btn) {console.log("can not find extension's pt_trans_neg_prompt_js_btn");return}
     if (!pt_send_neg_prompt_btn) {console.log("can not find extension's pt_send_neg_prompt_btn");return}
 
 
@@ -285,7 +289,7 @@ function sleep(ms) {
         //trigger event
         pt_prompt.dispatchEvent(new Event("input"));
         //trigger extension tab's translation button
-        pt_trans_prompt_btn.click();
+        pt_trans_prompt_js_btn.click();
         //save prompt, which gonna be filled by python side
         switch_prompt = prompt.value;
     };
@@ -302,7 +306,7 @@ function sleep(ms) {
         //trigger events
         pt_neg_prompt.dispatchEvent(new Event("input"));
         //trigger extension tab's translation button
-        pt_trans_neg_prompt_btn.click();
+        pt_trans_neg_prompt_js_btn.click();
         //save neg prompt, which gonna be filled by python side
         switch_neg_prompt = neg_prompt.value;
     };

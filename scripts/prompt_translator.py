@@ -235,9 +235,7 @@ def baidu_trans(app_id, app_key, text):
 
 # do translation
 # parameter: provider, app_id, app_key, text
-# return: translated_text, translated_text, translated_text
-# return it 3 times to send result to 3 different textbox.
-# This is a hacking way to let txt2img and img2img get the translated result
+# return: translated_text
 def do_trans(provider, app_id, app_key, text):
     print("====Translation start====")
     print("Use Serivce: " + provider)
@@ -262,11 +260,25 @@ def do_trans(provider, app_id, app_key, text):
         print("can not find provider: ")
         print(provider)
 
-    
     print("Translated result:")
     print(translated_text)
 
+    return translated_text
+
+# this is used when translating request is sending by js, not by a user's clicking
+# in this case, we need a return like below:
+# return: translated_text, translated_text, translated_text
+# return it 3 times to send result to 3 different textbox.
+# This is a hacking way to let txt2img and img2img get the translated result
+def do_trans_js(provider, app_id, app_key, text): 
+    print("Translating requested by js:")
+
+    translated_text = do_trans(provider, app_id, app_key, text)
+
+    print("return to both extension tab and txt2img+img2img tab")
     return [translated_text, translated_text, translated_text]
+    
+
 
 
 # send translated prompt to txt2img and img2img
@@ -390,6 +402,9 @@ def on_ui_tabs():
 
         with gr.Row():
             trans_prompt_btn = gr.Button(value="Translate", elem_id="pt_trans_prompt_btn")
+            # add a hidden button, used by fake click with javascript. To simulate msg between server and client side.
+            # this is the only way.
+            trans_prompt_js_btn = gr.Button(value="Trans Js", visible=False, elem_id="pt_trans_prompt_js_btn")
             send_prompt_btn = gr.Button(value="Send to txt2img and img2img", elem_id="pt_send_prompt_btn")
 
 
@@ -399,25 +414,34 @@ def on_ui_tabs():
 
         with gr.Row():
             trans_neg_prompt_btn = gr.Button(value="Translate", elem_id="pt_trans_neg_prompt_btn")
+            # add a hidden button, used by fake click with javascript. To simulate msg between server and client side.
+            # this is the only way.
+            trans_neg_prompt_js_btn = gr.Button(value="Trans Js", visible=False, elem_id="pt_trans_neg_prompt_js_btn")
             send_neg_prompt_btn = gr.Button(value="Send to txt2img and img2img", elem_id="pt_send_neg_prompt_btn")
 
 
         gr.HTML("<hr />")
 
         # Translation Service Setting
+
+
         gr.HTML("<p style=\"margin-top:0.75em;font-size:20px\">Translation Service Setting</p>")
         provider = gr.Dropdown(choices=providers, value=provider_name, label="Provider", elem_id="pt_provider")
-        app_id = gr.Textbox(label="APP ID", lines=1, value=trans_setting[provider_name]["app_id"], elem_id="pt_app_id")
+        app_id = gr.Textbox(label="APP ID", lines=1, value=trans_setting[provider_name]["app_id"], visible=trans_providers[provider_name]['has_id'], elem_id="pt_app_id")
         app_key = gr.Textbox(label="APP KEY", lines=1, value=trans_setting[provider_name]["app_key"], elem_id="pt_app_key")
         save_trans_setting_btn = gr.Button(value="Save Setting")
 
         # deepl do not need appid
-        app_id.visible = trans_providers[key]['has_id']
+        app_id.visible = trans_providers[provider_name]['has_id']
 
         # ====events====
         # Prompt
-        trans_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, prompt], outputs=[translated_prompt, txt2img_prompt, img2img_prompt])
-        trans_neg_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, neg_prompt], outputs=[translated_neg_prompt, txt2img_neg_prompt, img2img_neg_prompt])
+        trans_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, prompt], outputs=translated_prompt)
+        trans_neg_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, neg_prompt], outputs=translated_neg_prompt)
+
+        # Click by js
+        trans_prompt_js_btn.click(do_trans_js, inputs=[provider, app_id, app_key, prompt], outputs=[translated_prompt, txt2img_prompt, img2img_prompt])
+        trans_neg_prompt_js_btn.click(do_trans_js, inputs=[provider, app_id, app_key, neg_prompt], outputs=[translated_neg_prompt, txt2img_neg_prompt, img2img_neg_prompt])
 
         send_prompt_btn.click(do_send_prompt, inputs=translated_prompt, outputs=[txt2img_prompt, img2img_prompt])
         send_neg_prompt_btn.click(do_send_prompt, inputs=translated_neg_prompt, outputs=[txt2img_neg_prompt, img2img_neg_prompt])
