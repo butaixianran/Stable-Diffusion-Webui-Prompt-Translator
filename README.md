@@ -74,6 +74,8 @@ Move your mouse onto those buttons, they will show tooltips. Like following:
 ![](img/button04.jpg)  
 * The "**d**" button is a link to open [Deepl.com](https://www.deepl.com) in a new tab. In case you don't want to apply an APP Key, you still can use it on its website.
 
+> About img2img checkbox on toolbar's screenshot: It is for old version, now we can check it automatically so it is not needed anymore. 
+
 ### Usecase
 For example,  we filled prompt with asian language, then click "Translate" button. 
 ![](img/txt2img00.jpg)  
@@ -89,9 +91,7 @@ Now, you can use the translated English for generating.
 Following is generated images with AI translated English.
 ![](img/generated_demo.jpg)  
 
-If you go to img2img, you need to check the checkbox on toolbar. Otherwise this extension can not know which tab is active. And check it to off, after you're back to txt2img tab. 
 
-![](img/img2img.jpg)  
 
 Enjoy!  
 
