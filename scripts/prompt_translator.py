@@ -163,6 +163,7 @@ def deepl_trans(app_key, text):
 
     return translated_text
 
+#new srvice
 #yandex translator
 # refer: https://translate.api.cloud.yandex.net/translate/v2/translate
 # parameter: app_id, app_key, text
