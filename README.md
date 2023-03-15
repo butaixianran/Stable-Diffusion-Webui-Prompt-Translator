@@ -13,7 +13,7 @@ Then, Reload Stable-Diffusion-Webui. Done.
 
 # How to use
 ## Set translation API Key
-This extension uses Online AI translator service [Deepl.com](https://www.deepl.com), [Google](https://cloud.google.com/translate/docs/setup?hl=en) or [Baidu](http://api.fanyi.baidu.com/)(for Chinese)'s API to translate your pormpt.  
+This extension uses Online AI translator service [Deepl.com](https://www.deepl.com), [Google](https://cloud.google.com/translate/docs/setup?hl=en), [Yandex](https://yandex.com/dev/translate/) or [Baidu](http://api.fanyi.baidu.com/)(for Chinese)'s API to translate your pormpt.  
 
 That means, you need go to those translation website, apply a free API Key for this. Fill your API Key to this extension's tab page, click save, done.
 
@@ -30,6 +30,15 @@ After applying the API, go to your acount, the API key is at the bottom like fol
 
 
 After you get your APP Key, fill it into this extension's tab page, then click save. 
+
+### Setup for Yandex
+On Yandex's translation API service's page:   
+[https://yandex.com/dev/translate/](https://yandex.com/dev/translate/)  
+There is a button for "Get Free API Key" at Step 3.   
+
+Do that to get your APP ID and APP Key, then fill them into this extension.  
+
+I don't know the detail for that. I don't use yandex. The code for yandex is providered by pull request and the code looks good so I merged it. But no document for that. You need to try it yourself.  
 
 ### Setup for Google translation API Key [check](https://cloud.google.com/translate/docs/setup?hl=en)
 **Note: Google API does not offer any free words per month, and setup is kind of complex for normal user. Only choose google when you can not use other service.**  
