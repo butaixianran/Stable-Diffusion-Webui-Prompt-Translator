@@ -63,7 +63,7 @@ trans_providers = {
 # user's translation service setting
 trans_setting = {
     "deepl": {
-        "is_default":False,
+        "is_default":True,
         "app_id": "",
         "app_key": ""
     },
@@ -78,7 +78,7 @@ trans_setting = {
         "app_key": ""
     },
     "yandex" :{
-        "is_default":True,
+        "is_default":False,
         "app_id":"",
         "app_key":""
     }
