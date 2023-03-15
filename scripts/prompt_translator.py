@@ -54,12 +54,16 @@ trans_providers = {
         "url":"https://translation.googleapis.com",
         "has_id": False
     },
+    "yandex":{
+        "url":"https://translate.api.cloud.yandex.net/translate/v2/translate",
+        "has_id":True
+    }
 }
 
 # user's translation service setting
 trans_setting = {
     "deepl": {
-        "is_default":True,
+        "is_default":False,
         "app_id": "",
         "app_key": ""
     },
@@ -73,6 +77,11 @@ trans_setting = {
         "app_id": "",
         "app_key": ""
     },
+    "yandex" :{
+        "is_default":True,
+        "app_id":"",
+        "app_key":""
+    }
 }
 
 # user config file
@@ -154,7 +163,48 @@ def deepl_trans(app_key, text):
 
     return translated_text
 
+#new srvice
+#yandex translator
+# refer: https://translate.api.cloud.yandex.net/translate/v2/translate
+# parameter: app_id, app_key, text
+# return: translated_text
+def yandex_trans(app_id, app_key, text):
+    target_language = 'en'
+    folder_id = app_id
+    texts = [text]
+    body = {
+    "targetLanguageCode": target_language,
+    "texts": texts,
+    "folderId": folder_id,
+    }
+    headers = {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer {0}".format(app_key)
+    }
+    response = requests.post('https://translate.api.cloud.yandex.net/translate/v2/translate',
+    json = body,
+    headers = headers
+    )
+    translated_text = ""
+    translated_text = response.text
+    try:
+        content = response.json()
 
+    except Exception as e:
+        print("Parse response json failed")
+        print(str(e))
+        print("response:")
+        print(response.text)
+        return ""
+
+    # try to get text from content
+    translated_text = ""
+    if content:
+        if "translations" in content.keys():
+            if len(["translations"]):
+                if "text" in content["translations"][0].keys():
+                    translated_text = content["translations"][0]["text"]
+    return translated_text
 
 # baidu translator
 # refer: https://fanyi-api.baidu.com/doc/21
@@ -256,6 +306,8 @@ def do_trans(provider, app_id, app_key, text):
     elif provider == "google":
         service = GoogleTranslationService(app_key)
         translated_text = service.translate(text=text)
+    elif provider == "yandex":
+        translated_text = yandex_trans(app_id, app_key, text)
     else:
         print("can not find provider: ")
         print(provider)
