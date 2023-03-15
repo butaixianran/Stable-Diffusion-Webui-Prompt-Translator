@@ -32,6 +32,7 @@ import json
 import modules
 from modules import script_callbacks
 from scripts.services import GoogleTranslationService
+import scripts.lang_code as lang_code
 
 # from modules import images
 # from modules.processing import process_images, Processed
@@ -91,9 +92,9 @@ config_file_name = os.path.join(scripts.basedir(), "prompt_translator.cfg")
 
 # deepl translator
 # refer: https://www.deepl.com/docs-api/translate-text/
-# parameter: app_key, text
+# parameter: app_key, text, target_language
 # return: translated_text
-def deepl_trans(app_key, text):
+def deepl_trans(app_key, text, tar_lang):
     print("Getting data for deepl")
     # check error
     if not app_key:
@@ -103,13 +104,15 @@ def deepl_trans(app_key, text):
     if not text:
         print("text can not be empty")
         return ""
-
+    
+    if not tar_lang:
+        tar_lang = "EN"
 
     # set http request
     headers = {"Authorization": "DeepL-Auth-Key "+app_key}
     data ={
         "text":text,
-        "target_lang":"EN"
+        "target_lang":tar_lang
     }
 
     print("Sending request")
@@ -166,10 +169,14 @@ def deepl_trans(app_key, text):
 #new srvice
 #yandex translator
 # refer: https://translate.api.cloud.yandex.net/translate/v2/translate
-# parameter: app_id, app_key, text
+# parameter: app_id, app_key, text, tar_lang
 # return: translated_text
-def yandex_trans(app_id, app_key, text):
+def yandex_trans(app_id, app_key, text, tar_lang):
+
     target_language = 'en'
+    if tar_lang:
+        target_language = tar_lang
+
     folder_id = app_id
     texts = [text]
     body = {
@@ -208,9 +215,9 @@ def yandex_trans(app_id, app_key, text):
 
 # baidu translator
 # refer: https://fanyi-api.baidu.com/doc/21
-# parameter: app_id, app_key, text
+# parameter: app_id, app_key, text, tar_lang
 # return: translated_text
-def baidu_trans(app_id, app_key, text):
+def baidu_trans(app_id, app_key, text, tar_lang):
     print("Getting data for baidu")
     # check error
     if not app_id:
@@ -225,12 +232,15 @@ def baidu_trans(app_id, app_key, text):
         print("text can not be empty")
         return ""
 
+    if not tar_lang:
+        tar_lang = 'en'
+
     # set http request
     salt = str(random.randint(10000,10000000))
     sign_str = app_id+text+salt+app_key
     sign_md5 = hashlib.md5(sign_str.encode("utf-8")).hexdigest()
 
-    request_link = trans_providers["baidu"]["url"]+"?q="+text+"&from=auto&to=en&appid="+app_id+"&salt="+salt+"&sign="+sign_md5
+    request_link = trans_providers["baidu"]["url"]+"?q="+text+"&from=auto&to="+tar_lang+"&appid="+app_id+"&salt="+salt+"&sign="+sign_md5
 
     print("Sending request")
     r = None
@@ -286,7 +296,7 @@ def baidu_trans(app_id, app_key, text):
 # do translation
 # parameter: provider, app_id, app_key, text
 # return: translated_text
-def do_trans(provider, app_id, app_key, text):
+def do_trans(provider, app_id, app_key, text, tar_lang):
     print("====Translation start====")
     print("Use Serivce: " + provider)
     print("Source Prompt:")
@@ -297,17 +307,23 @@ def do_trans(provider, app_id, app_key, text):
         print(provider)
         return ""
     
+    # get target language code
+    tar_lang_code = ""
+    if provider in lang_code.lang_code_dict.keys():
+        if tar_lang in lang_code.lang_code_dict[provider].keys():
+            tar_lang_code = lang_code.lang_code_dict[provider][tar_lang]
+    
     # translating
     translated_text = ""
     if provider == "deepl":
-        translated_text = deepl_trans(app_key, text)
+        translated_text = deepl_trans(app_key, text, tar_lang_code)
     elif provider == "baidu":
-        translated_text = baidu_trans(app_id, app_key, text)
+        translated_text = baidu_trans(app_id, app_key, text, tar_lang_code)
     elif provider == "google":
         service = GoogleTranslationService(app_key)
-        translated_text = service.translate(text=text)
+        translated_text = service.translate(text=text, target=tar_lang_code)
     elif provider == "yandex":
-        translated_text = yandex_trans(app_id, app_key, text)
+        translated_text = yandex_trans(app_id, app_key, text, tar_lang_code)
     else:
         print("can not find provider: ")
         print(provider)
@@ -322,10 +338,10 @@ def do_trans(provider, app_id, app_key, text):
 # return: translated_text, translated_text, translated_text
 # return it 3 times to send result to 3 different textbox.
 # This is a hacking way to let txt2img and img2img get the translated result
-def do_trans_js(provider, app_id, app_key, text): 
+def do_trans_js(provider, app_id, app_key, text, tar_lang): 
     print("Translating requested by js:")
 
-    translated_text = do_trans(provider, app_id, app_key, text)
+    translated_text = do_trans(provider, app_id, app_key, text, tar_lang)
 
     print("return to both extension tab and txt2img+img2img tab")
     return [translated_text, translated_text, translated_text]
@@ -392,6 +408,7 @@ def load_trans_setting():
         print("no config file: " + config_file_name)
         return
 
+    data = None
     with open(config_file_name, 'r') as f:
         data = json.load(f)
 
@@ -402,8 +419,8 @@ def load_trans_setting():
     
     for key in trans_setting.keys():
         if key not in data.keys():
-            print("can not find " + key +" section in config file")
-            return
+            data[key] = trans_setting[key]
+            print("can not find " + key +" section in config file, use default")
 
     # set value
     trans_setting = data
@@ -422,10 +439,14 @@ def on_ui_tabs():
             provider_name = key
             break
 
-    # convert dict to list for provider names
-    providers = []
-    for key in trans_providers.keys():
-        providers.append(key)
+    # session data
+    providers = list(trans_providers.keys())
+    # target languages
+    tar_langs = list(lang_code.lang_code_dict[provider_name].keys())
+    def_tar_lang = str(tar_langs[0])
+
+
+    
 
     # get prompt textarea
     # UI structure
@@ -436,18 +457,23 @@ def on_ui_tabs():
     img2img_prompt = modules.ui.img2img_paste_fields[0][0]
     img2img_neg_prompt = modules.ui.img2img_paste_fields[1][0]
 
+
     # ====Event's function====
     def set_provider(provider):
         app_id_visible =  trans_providers[provider]['has_id']
-        return [app_id.update(visible=app_id_visible, value=trans_setting[provider]["app_id"]), app_key.update(value=trans_setting[provider]["app_key"])]
+        # set target language list
+        tar_langs = [""]
+        if provider in lang_code.lang_code_dict.keys():
+            tar_langs = list(lang_code.lang_code_dict[provider].keys())
+
+        return [app_id.update(visible=app_id_visible, value=trans_setting[provider]["app_id"]), app_key.update(value=trans_setting[provider]["app_key"]), tar_lang_drop.update(choices=tar_langs, value=tar_langs[0])]
 
 
     with gr.Blocks(analytics_enabled=False) as prompt_translator:
-        # ====ui====
-        gr.HTML("<p style=\"margin-bottom:0.75em\">It will translate prompt from your native language into English. So, you can write prompt with your native language.</p>")
-        # gr.HTML("<br />")
-        
+        # ====ui====        
         # Prompt Area
+        with gr.Row():
+            tar_lang_drop = gr.Dropdown(label="Target Language", choices=tar_langs, value=def_tar_lang, elem_id="pt_tar_lang")
         with gr.Row():
             prompt = gr.Textbox(label="Prompt", lines=3, value="", elem_id="pt_prompt")
             translated_prompt = gr.Textbox(label="Translated Prompt", lines=3, value="", elem_id="pt_translated_prompt")
@@ -477,7 +503,7 @@ def on_ui_tabs():
         # Translation Service Setting
 
 
-        gr.HTML("<p style=\"margin-top:0.75em;font-size:20px\">Translation Service Setting</p>")
+        gr.Markdown("Translation Service Setting")
         provider = gr.Dropdown(choices=providers, value=provider_name, label="Provider", elem_id="pt_provider")
         app_id = gr.Textbox(label="APP ID", lines=1, value=trans_setting[provider_name]["app_id"], elem_id="pt_app_id")
         app_key = gr.Textbox(label="APP KEY", lines=1, value=trans_setting[provider_name]["app_key"], elem_id="pt_app_key")
@@ -488,18 +514,18 @@ def on_ui_tabs():
 
         # ====events====
         # Prompt
-        trans_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, prompt], outputs=translated_prompt)
-        trans_neg_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, neg_prompt], outputs=translated_neg_prompt)
+        trans_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, prompt, tar_lang_drop], outputs=translated_prompt)
+        trans_neg_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, neg_prompt, tar_lang_drop], outputs=translated_neg_prompt)
 
         # Click by js
-        trans_prompt_js_btn.click(do_trans_js, inputs=[provider, app_id, app_key, prompt], outputs=[translated_prompt, txt2img_prompt, img2img_prompt])
-        trans_neg_prompt_js_btn.click(do_trans_js, inputs=[provider, app_id, app_key, neg_prompt], outputs=[translated_neg_prompt, txt2img_neg_prompt, img2img_neg_prompt])
+        trans_prompt_js_btn.click(do_trans_js, inputs=[provider, app_id, app_key, prompt, tar_lang_drop], outputs=[translated_prompt, txt2img_prompt, img2img_prompt])
+        trans_neg_prompt_js_btn.click(do_trans_js, inputs=[provider, app_id, app_key, neg_prompt, tar_lang_drop], outputs=[translated_neg_prompt, txt2img_neg_prompt, img2img_neg_prompt])
 
         send_prompt_btn.click(do_send_prompt, inputs=translated_prompt, outputs=[txt2img_prompt, img2img_prompt])
         send_neg_prompt_btn.click(do_send_prompt, inputs=translated_neg_prompt, outputs=[txt2img_neg_prompt, img2img_neg_prompt])
 
         # Translation Service Setting
-        provider.change(fn=set_provider, inputs=provider, outputs=[app_id, app_key])
+        provider.change(fn=set_provider, inputs=provider, outputs=[app_id, app_key, tar_lang_drop])
         save_trans_setting_btn.click(save_trans_setting, inputs=[provider, app_id, app_key])
 
     # the third parameter is the element id on html, with a "tab_" as prefix

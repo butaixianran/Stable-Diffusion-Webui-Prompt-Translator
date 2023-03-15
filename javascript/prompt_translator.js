@@ -111,11 +111,11 @@ onUiLoaded(() => {
 
     //set toolbar
     let toolbar = document.createElement("div");
-    toolbar.id = "prompt_trans_toolbar";
+    // toolbar.id = "prompt_trans_toolbar";
     toolbar.className = "gr-block gr-box relative w-full border-solid border border-gray-200 gr-padded";
     //create buttons
     let trans_prompt_btn = document.createElement("button");
-    trans_prompt_btn.id = "trans_prompt_btn";
+    // trans_prompt_btn.id = "trans_prompt_btn";
     trans_prompt_btn.innerHTML = "🗚";
     trans_prompt_btn.className = "gr-button gr-button-lg gr-button-tool";
     // trans_prompt_btn.style.borderColor = "#e5e7eb";
@@ -123,7 +123,7 @@ onUiLoaded(() => {
     trans_prompt_btn.title = "Translate Prompt";
 
     let trans_neg_prompt_btn = document.createElement("button");
-    trans_neg_prompt_btn.id = "trans_neg_prompt_btn";
+    // trans_neg_prompt_btn.id = "trans_neg_prompt_btn";
     trans_neg_prompt_btn.innerHTML = "🗛";
     trans_neg_prompt_btn.className = "gr-button gr-button-lg gr-button-tool";
     // trans_neg_prompt_btn.style.borderColor = "#e5e7eb";
@@ -131,7 +131,7 @@ onUiLoaded(() => {
     trans_neg_prompt_btn.title = "Translate Negative Prompt";
 
     let switch_prompt_btn = document.createElement("button");
-    switch_prompt_btn.id = "switch_prompt_btn";
+    // switch_prompt_btn.id = "switch_prompt_btn";
     switch_prompt_btn.innerHTML = "⇄";
     switch_prompt_btn.className = "gr-button gr-button-lg gr-button-tool";
     // switch_prompt_btn.style.borderColor = "#e5e7eb";
@@ -140,12 +140,32 @@ onUiLoaded(() => {
 
 
     let switch_neg_prompt_btn = document.createElement("button");
-    switch_neg_prompt_btn.id = "switch_prompt_btn";
+    // switch_neg_prompt_btn.id = "switch_neg_prompt_btn";
     switch_neg_prompt_btn.innerHTML = "↹";
     switch_neg_prompt_btn.className = "gr-button gr-button-lg gr-button-tool";
     // switch_neg_prompt_btn.style.borderColor = "#e5e7eb";
     switch_neg_prompt_btn.style.border = "none";
     switch_neg_prompt_btn.title = "Switch negative prompt between Native language and English";
+
+    // target language
+    let tar_lang_drop = document.createElement("select");
+    tar_lang_drop.className = "gr-box gr-input";
+    // tar_lang_drop.style.borderColor = "#e5e7eb";
+    tar_lang_drop.style.border = "none";
+    tar_lang_drop.title = "Target language";
+    // get tar_lang dropdown from extension tab
+    let pt_tar_lang_drop = gradioApp().querySelector("#pt_tar_lang select");
+    if (pt_tar_lang_drop) {
+        // create options
+        for (const option of pt_tar_lang_drop.options) {
+            let tar_lang_drop_option = document.createElement("option");
+            tar_lang_drop_option.value = option.value;
+            tar_lang_drop_option.innerHTML = option.value;
+            // add to list
+            tar_lang_drop.appendChild(tar_lang_drop_option)
+        }
+    }
+    pt_tar_lang_drop.selectedIndex = 0;
 
     //link to deepl
     let deepl_link = document.createElement("a");
@@ -163,7 +183,21 @@ onUiLoaded(() => {
     toolbar.appendChild(trans_neg_prompt_btn);
     toolbar.appendChild(switch_prompt_btn);
     toolbar.appendChild(switch_neg_prompt_btn);
+    toolbar.appendChild(tar_lang_drop);
     toolbar.appendChild(deepl_link);
+
+    //add onchange to dropdown
+    tar_lang_drop.onchange = function(){
+        //set tar_lang_drop's value of extension tab
+        let pt_tar_lang_drop = gradioApp().querySelector("#pt_tar_lang select");
+        if (pt_tar_lang_drop) {
+            pt_tar_lang_drop.selectedIndex = tar_lang_drop.selectedIndex
+            // trigger event to tell gradio
+            pt_tar_lang_drop.dispatchEvent(new Event("change"));
+            pt_tar_lang_drop.dispatchEvent(new Event("input"));
+        }
+
+    }
 
     //add click to button
     trans_prompt_btn.onclick = function(){
