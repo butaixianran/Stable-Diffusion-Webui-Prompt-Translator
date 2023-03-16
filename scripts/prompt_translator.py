@@ -33,6 +33,7 @@ import modules
 from modules import script_callbacks
 from scripts.services import GoogleTranslationService
 import scripts.lang_code as lang_code
+from transformers import MarianMTModel, MarianTokenizer
 
 # from modules import images
 # from modules.processing import process_images, Processed
@@ -58,6 +59,10 @@ trans_providers = {
     "yandex":{
         "url":"https://translate.api.cloud.yandex.net/translate/v2/translate",
         "has_id":True
+    },
+    "MarianMT":{
+        "url":"",
+        "has_id":False
     }
 }
 
@@ -82,12 +87,140 @@ trans_setting = {
         "is_default":False,
         "app_id":"",
         "app_key":""
+    },
+    "MarianMT" :{
+        "is_default":False,
+        "app_id":"",
+        "app_key":""
     }
 }
 
 # user config file
 # use scripts.basedir() to get current extension's folder
 config_file_name = os.path.join(scripts.basedir(), "prompt_translator.cfg")
+
+# scan MarianMT Model
+MarianMT_model_folder = os.path.join(scripts.basedir(), "MarianMT")
+MarianMT_model_prefix = "opus-mt-"
+MarianMT_model_lang_pairs = []
+
+
+# init setting
+# load translation serivce setting
+def load_trans_setting():
+    # load data into globel trans_setting
+    global trans_setting
+
+    if not os.path.isfile(config_file_name):
+        print("no config file: " + config_file_name)
+        return
+
+    data = None
+    with open(config_file_name, 'r') as f:
+        data = json.load(f)
+
+    # check error
+    if not data:
+        print("load config file failed")
+        return
+    
+    for key in trans_setting.keys():
+        if key not in data.keys():
+            data[key] = trans_setting[key]
+            print("can not find " + key +" section in config file, use default")
+
+    # set value
+    trans_setting = data
+    return
+
+load_trans_setting()
+
+# get provider
+providers = list(trans_providers.keys())
+provider_name = "deepl"
+for key in trans_setting.keys():
+    if trans_setting[key]["is_default"]:
+        provider_name = key
+        break
+
+
+# target languages
+tar_langs = [""]
+def_tar_lang = ""
+if provider_name != "MarianMT":
+    if provider_name in lang_code.lang_code_dict.keys():
+        tar_langs = list(lang_code.lang_code_dict[provider_name].keys())
+        def_tar_lang = str(tar_langs[0])
+
+
+# MarianMT_model
+def scan_MarianMT_model():
+    print("Scan MarianMT model")
+    global MarianMT_model_lang_pairs
+
+    if not os.path.isdir(MarianMT_model_folder):
+        print("No MarianMT folder, no need scan")
+        return
+
+    for name in os.listdir(MarianMT_model_folder):
+        item_path = os.path.join(MarianMT_model_folder, name)
+        if os.path.isdir(item_path):
+            # check name
+            if name.startswith(MarianMT_model_prefix):
+                # find model
+                # get language pair
+                lang_pair = name[len(MarianMT_model_prefix):]
+                if lang_pair:
+                    MarianMT_model_lang_pairs.append(lang_pair)
+
+    print(f"find MarianMT_model language pair: {MarianMT_model_lang_pairs}")
+
+# Scan local translation models
+scan_MarianMT_model()
+
+
+
+def load_MarianMT_model(lang_pair):
+    global active_MarianMT_model
+    global active_MarianMT_tokenizer
+
+    model_name = MarianMT_model_prefix+lang_pair
+    model_path = os.path.join(MarianMT_model_folder, model_name)
+    print("MarianMT model_path: " + model_path)
+
+    if not os.path.isdir(model_path):
+        print("model_path is not a dir: " + model_path)
+        return
+
+    print("Get tokenizer")
+    active_MarianMT_tokenizer = MarianTokenizer.from_pretrained(model_path)
+    print("Load Model")
+    active_MarianMT_model = MarianMTModel.from_pretrained(model_path)
+
+
+# pre-load MarianMT Model
+active_MarianMT_model = None
+active_MarianMT_tokenizer = None
+if provider_name == "MarianMT":
+    # reset 
+    tar_langs = [""]
+    def_tar_lang = ""
+    # use language pair as tar_lang list
+    tar_langs = MarianMT_model_lang_pairs
+    # get default value
+    if len(MarianMT_model_lang_pairs):
+        # use "-en" model as default value
+        for lang_pair in MarianMT_model_lang_pairs:
+            if lang_pair.endswith("-en"):
+                def_tar_lang = lang_pair
+                break
+        
+        # if there is no "-en" model, use first one
+        if not def_tar_lang:
+            def_tar_lang = MarianMT_model_lang_pairs[0]
+
+    if def_tar_lang:
+        load_MarianMT_model(def_tar_lang)
 
 
 # deepl translator
@@ -293,6 +426,50 @@ def baidu_trans(app_id, app_key, text, tar_lang):
     return translated_text
 
 
+
+# deepl translator
+# refer: https://huggingface.co/docs/transformers/model_doc/marian
+# parameter: app_key, text, language_pair(like zh-en)
+# return: translated_text
+def MarianMT_trans(text, lang_pair):
+    print("Getting data for MarianMT")
+    # check error
+    if not text:
+        print("text can not be empty")
+        return ""
+    
+    if not lang_pair:
+        print("language pair can not be empty")
+        return ""
+    
+    if lang_pair not in MarianMT_model_lang_pairs:
+        print(f"unknow language pair: {lang_pair}")
+        return ""
+    
+
+    # load model
+    if not active_MarianMT_model or not active_MarianMT_tokenizer:
+        load_MarianMT_model(lang_pair)
+   
+    # get model path
+    print("Translating")
+    translated = active_MarianMT_model.generate(**active_MarianMT_tokenizer(text, return_tensors="pt", padding=True))
+    tgt_text = [active_MarianMT_tokenizer.decode(t, skip_special_tokens=True) for t in translated]
+
+    translated_text = ""
+    if len(tgt_text)==1:
+        translated_text = tgt_text[0]
+    elif len(tgt_text)>1:
+        for txt in tgt_text:
+            translated_text += txt + ", "
+    else:
+        print("trasnlated tgt_text is empty")
+        print(tgt_text)
+
+
+    return translated_text
+
+
 # do translation
 # parameter: provider, app_id, app_key, text
 # return: translated_text
@@ -303,7 +480,7 @@ def do_trans(provider, app_id, app_key, text, tar_lang):
     print(text)
 
     if provider not in trans_setting.keys():
-        print("can not find provider: ")
+        print("can not find provider in trans_setting: ")
         print(provider)
         return ""
     
@@ -324,8 +501,10 @@ def do_trans(provider, app_id, app_key, text, tar_lang):
         translated_text = service.translate(text=text, target=tar_lang_code)
     elif provider == "yandex":
         translated_text = yandex_trans(app_id, app_key, text, tar_lang_code)
+    elif provider == "MarianMT":
+        translated_text = MarianMT_trans(text, tar_lang)
     else:
-        print("can not find provider: ")
+        print("unsupported provider: ")
         print(provider)
 
     print("Translated result:")
@@ -399,54 +578,12 @@ def save_trans_setting(provider, app_id, app_key):
 
     
 
-# load translation serivce setting
-def load_trans_setting():
-    # load data into globel trans_setting
-    global trans_setting
-
-    if not os.path.isfile(config_file_name):
-        print("no config file: " + config_file_name)
-        return
-
-    data = None
-    with open(config_file_name, 'r') as f:
-        data = json.load(f)
-
-    # check error
-    if not data:
-        print("load config file failed")
-        return
-    
-    for key in trans_setting.keys():
-        if key not in data.keys():
-            data[key] = trans_setting[key]
-            print("can not find " + key +" section in config file, use default")
-
-    # set value
-    trans_setting = data
-    return
 
 
 
 def on_ui_tabs():
-    # init
-    load_trans_setting()
-
-    # get saved default provide name
-    provider_name = "deepl"
-    for key in trans_setting.keys():
-        if trans_setting[key]["is_default"]:
-            provider_name = key
-            break
-
-    # session data
-    providers = list(trans_providers.keys())
-    # target languages
-    tar_langs = list(lang_code.lang_code_dict[provider_name].keys())
-    def_tar_lang = str(tar_langs[0])
 
 
-    
 
     # get prompt textarea
     # UI structure
@@ -463,11 +600,42 @@ def on_ui_tabs():
         app_id_visible =  trans_providers[provider]['has_id']
         # set target language list
         tar_langs = [""]
-        if provider in lang_code.lang_code_dict.keys():
+        def_tar_lang = ""
+        # local translation model
+        if provider == "MarianMT":
+            # use language pair as tar_lang list
+            tar_langs = MarianMT_model_lang_pairs
+            # get default value
+            if len(MarianMT_model_lang_pairs):
+                # use "-en" model as default value
+                for lang_pair in MarianMT_model_lang_pairs:
+                    if lang_pair.endswith("-en"):
+                        def_tar_lang = lang_pair
+                        break
+                
+                # if there is no "-en" model, use first one
+                if not def_tar_lang:
+                    def_tar_lang = MarianMT_model_lang_pairs[0]
+
+            # load model
+            if def_tar_lang:
+                load_MarianMT_model(def_tar_lang)
+
+        # cloud translation service
+        elif provider in lang_code.lang_code_dict.keys():
             tar_langs = list(lang_code.lang_code_dict[provider].keys())
+            def_tar_lang = tar_langs[0]
 
-        return [app_id.update(visible=app_id_visible, value=trans_setting[provider]["app_id"]), app_key.update(value=trans_setting[provider]["app_key"]), tar_lang_drop.update(choices=tar_langs, value=tar_langs[0])]
 
+        return [app_id.update(visible=app_id_visible, value=trans_setting[provider]["app_id"]), app_key.update(value=trans_setting[provider]["app_key"]), tar_lang_drop.update(choices=tar_langs, value=def_tar_lang)]
+
+
+
+    def tar_lang_changed(provider, tar_lang):
+        if provider == "MarianMT":
+            # need to pre-load model
+            if tar_lang:
+                load_MarianMT_model(tar_lang)
 
     with gr.Blocks(analytics_enabled=False) as prompt_translator:
         # ====ui====        
@@ -513,6 +681,8 @@ def on_ui_tabs():
         app_id.visible = trans_providers[provider_name]['has_id']
 
         # ====events====
+        # Target languages
+        tar_lang_drop.change(fn=tar_lang_changed, inputs=[provider, tar_lang_drop])
         # Prompt
         trans_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, prompt, tar_lang_drop], outputs=translated_prompt)
         trans_neg_prompt_btn.click(do_trans, inputs=[provider, app_id, app_key, neg_prompt, tar_lang_drop], outputs=translated_neg_prompt)

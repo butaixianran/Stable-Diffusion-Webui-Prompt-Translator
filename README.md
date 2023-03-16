@@ -13,11 +13,15 @@ Then, Reload Stable-Diffusion-Webui. Done.
 
 # How to use
 ## Set translation API Key
-This extension uses Online AI translator service [Deepl.com](https://www.deepl.com), [Google](https://cloud.google.com/translate/docs/setup?hl=en), [Yandex](https://yandex.com/dev/translate/) or [Baidu](http://api.fanyi.baidu.com/)(for Chinese)'s API to translate your pormpt.  
+This extension uses Online AI translator service [Deepl.com](https://www.deepl.com), [Google](https://cloud.google.com/translate/docs/setup?hl=en), [Yandex](https://yandex.com/dev/translate/) and [Baidu](http://api.fanyi.baidu.com/)(for Chinese)'s API to translate your pormpt.  
 
-That means, you need go to those translation website, apply a free API Key for this. Fill your API Key to this extension's tab page, click save, done.
+Or, use local AI translation engine [MarianMT](https://huggingface.co/docs/transformers/model_doc/marian)  
 
-(For baidu, check [README.cn.md](README.cn.md))
+For online service, you need go to those translation website, apply a free API Key for this. Fill your API Key to this extension's tab page, click save, done.  
+
+(For baidu, check [README.cn.md](README.cn.md))  
+
+For local AI translation engine MarianMT, you need to do a lot of downloading work, and the quality is not as good as online service. It also need to load a model when using. But if you still want it, check [Setup for MarianMT](#setup-for-marianmt) section.   
 
 ### Setup for Deepl
 With deepl, it offers you 500,000 character/month for free. That's more than enough.  
@@ -57,7 +61,50 @@ I don't know the detail for that. I don't use yandex. The code for yandex is pro
     - click "CREDENTIALS" tab and click "CREATED CREDENTIALS"
 
 
-If you are in China, just choose [Baidu](http://api.fanyi.baidu.com/). 
+If you are in China, just choose [Baidu](http://api.fanyi.baidu.com/).   
+
+
+### Setup for MarianMT
+[MarianMT](https://huggingface.co/docs/transformers/model_doc/marian) is an open source local AI translation engine. But the quality is not as good as only translation services.  
+
+To use it, you need do following things:
+Go to extension folder, create a "MarianMT" Subfolder.  
+
+#### Download MarianMT Model
+Go to [MarianMT's model page](https://huggingface.co/Helsinki-NLP). There are 1000+ models in the list.  
+
+Each model is target on a Source languge to a Target languge task.  
+
+For example, model `opus-mt-en-ja` means this model can translate English to Japanese. And `opus-mt-ja-en` means it can translate Japanese to English.  
+
+So, you need 2 models for your native language.  
+
+Go to a model's project page, you will find, each model is a folder, not just 1 file.  
+
+To download it, you need use command line window, which is cmd in windows. Go to extension's `MarianMT` subfolder, which you just created. Run following command:  
+`git clone This_Model_Project's_URL`   
+For example, for model `opus-mt-ja-en`, it will be:
+`git clone https://huggingface.co/Helsinki-NLP/opus-mt-ja-en`  
+
+This git clone, will download all small files and ignore large model files.   
+(We don't use `git lfs` command here, since we only need 1 of those large model files)  
+
+Now, go to this model project's file list, click and download the file `pytorch_model.bin` manually. Then put it into `this_extension_folder/MarianMT/this_model_folder`. 
+
+Now, this model is fully downloaded. And this whole model folder, will be loaded as a model.  
+
+You need to download `Your_language-en` and `en-Your_language` these 2 models.   
+
+**After downloading these 2 models**, reload SD webui, go to extension's tab. Choose "MarianMT" as provider. 
+
+Now, you can start to translate. Just leave App Key empty, it is not needed in this case.  
+
+FYI, when you change target language in the dropdown list, extension will load the model for that, so it gonna take a few seconds.  
+
+#### Limited Support for MarianMT
+This extension only has limited support for it. And No feature request will be accept about MarianMT.    
+
+
 
 **Now, you have 2 ways to translate your prompt:**
 
