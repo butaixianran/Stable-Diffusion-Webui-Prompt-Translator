@@ -1,2 +1,3 @@
 *.cfg
 **/__pycache__/**
+MarianMT/
