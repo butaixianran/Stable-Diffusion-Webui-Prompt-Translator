@@ -65,9 +65,9 @@ If you are in China, just choose [Baidu](http://api.fanyi.baidu.com/).
 
 
 ### Setup for MarianMT
-[MarianMT](https://huggingface.co/docs/transformers/model_doc/marian) is an open source local AI translation engine. But the quality is not as good as only translation services.  
+[MarianMT](https://huggingface.co/docs/transformers/model_doc/marian) is an open source local AI translation engine. But the quality is not as good as online translation services.  
 
-To use it, you need do following things:
+To use it, you need do following things:  
 Go to extension folder, create a "MarianMT" Subfolder.  
 
 #### Download MarianMT Model
@@ -82,24 +82,28 @@ So, you need 2 models for your native language.
 Go to a model's project page, you will find, each model is a folder, not just 1 file.  
 
 To download it, you need use command line window, which is cmd in windows. Go to extension's `MarianMT` subfolder, which you just created. Run following command:  
-`git clone This_Model_Project's_URL`   
-For example, for model `opus-mt-ja-en`, it will be:
-`git clone https://huggingface.co/Helsinki-NLP/opus-mt-ja-en`  
+```
+git clone This_Model_Project's_URL
+```
+For example, for model `opus-mt-ja-en`, it will be:  
+```
+git clone https://huggingface.co/Helsinki-NLP/opus-mt-ja-en
+```
 
 This git clone, will download all small files and ignore large model files.   
 (We don't use `git lfs` command here, since we only need 1 of those large model files)  
 
-Now, go to this model project's file list, click and download the file `pytorch_model.bin` manually. Then put it into `this_extension_folder/MarianMT/this_model_folder`. 
+Now, go to this model project's file list, click and download the file `pytorch_model.bin` manually. Then put it into `this_extension_folder/MarianMT/this_model's_folder`. 
 
 Now, this model is fully downloaded. And this whole model folder, will be loaded as a model.  
 
-You need to download `Your_language-en` and `en-Your_language` these 2 models.   
+You need to download `Your_language-en` and `en-Your_language` models for your language.   
 
-**After downloading these 2 models**, reload SD webui, go to extension's tab. Choose "MarianMT" as provider. 
+**After downloading these 2 models**, reload SD webui, go to extension's tab. Choose `MarianMT` as provider. 
 
 Now, you can start to translate. Just leave App Key empty, it is not needed in this case.  
 
-FYI, when you change target language in the dropdown list, extension will load the model for that, so it gonna take a few seconds.  
+FYI, when you changing target language from the dropdown list, extension will load the model for that, so it gonna take a few seconds.  
 
 #### Limited Support for MarianMT
 This extension only has limited support for it. And No feature request will be accept about MarianMT.    
