@@ -9,7 +9,7 @@ GO to SD webui's extension page, choose install from github url. Fill it with th
 
 (If you can not connect to github, you can just download this project as `.zip` file. Unzip it to `Your Stable-Diffusion-Webui/extensions` folder.)
 
-Then, Reload Stable-Diffusion-Webui. Done. 
+**Then, Re-Launch Stable-Diffusion-Webui, Just reload UI won't work.**  
 
 # How to use
 ## Set translation API Key

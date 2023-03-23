@@ -4,7 +4,7 @@
 这是Stable-Diffusion-Webui的插件。用于把关键词从你的母语，翻译成英语。这样，从今以后，你就可以用你的母语来写关键词了。
 
 # 安装
-下载本项目为 `.zip` 文件。解压放到 `你的Stable-Diffusion-Webui/extensions` 目录。重新加载 Reload Stable-Diffusion-Webui，完成。 
+下载本项目为 `.zip` 文件。解压放到 `你的Stable-Diffusion-Webui/extensions` 目录。**关闭并重新启动SD webui，光是Reload UI不起作用。**  
 
 # 使用方法
 ## 设置翻译服务的App Key
