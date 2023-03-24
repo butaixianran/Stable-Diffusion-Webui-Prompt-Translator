@@ -99,14 +99,21 @@ onUiLoaded(() => {
         const tmp = switch_prompt;
         switch_prompt = prompt.value;
         prompt.value = tmp;
+
+        //tell gradio
+        prompt.dispatchEvent(new Event("input"));
+
     }
 
     function do_switch_neg_prompt() {
         const neg_prompt = getActiveNegativePrompt();
-        if (prompt === null) return;
+        if (neg_prompt === null) return;
         const tmp = switch_neg_prompt;
         switch_neg_prompt = neg_prompt.value;
         neg_prompt.value = tmp;
+
+        //tell gradio
+        neg_prompt.dispatchEvent(new Event("input"));
     }
 
     //set toolbar
