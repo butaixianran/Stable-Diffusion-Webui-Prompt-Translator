@@ -1,6 +1,25 @@
 "use strict";
 
 onUiLoaded(() => {
+
+
+    function get_gradio_version(){
+        let foot = gradioApp().getElementById("footer");
+        if (!foot){return null;}
+    
+        let versions = foot.querySelector(".versions");
+        if (!versions){return null;}
+    
+        if (versions.innerHTML.indexOf("gradio: 3.16.2")>0) {
+            return "3.16.2";
+        } else {
+            return "3.23.0";
+        }
+        
+    }
+
+
+
     function getActivePrompt() {
         const currentTab = get_uiCurrentTabContent();
         switch (currentTab.id) {
@@ -22,6 +41,8 @@ onUiLoaded(() => {
         }
         return null;
     }
+
+    let gradio_ver = get_gradio_version();
 
     // get extension's tab's component
     let pt_prompt = gradioApp().querySelector("#pt_prompt textarea");
@@ -90,6 +111,20 @@ onUiLoaded(() => {
         return;
     }
 
+    //get target language list from pt_translated_neg_prompt
+    let tar_lang_list = [""];
+    let tar_lang_list_str = pt_translated_neg_prompt.value;
+    if (tar_lang_list_str) {
+        tar_lang_list = JSON.parse(tar_lang_list_str);
+        // clear msg
+        pt_translated_neg_prompt.value = "";
+
+    } else {
+        console.log("can not get tar_lang_list_str");
+    }
+
+
+
     //swtich native and translated prompt
     let switch_prompt = "";
     let switch_neg_prompt = "";
@@ -124,7 +159,7 @@ onUiLoaded(() => {
     let trans_prompt_btn = document.createElement("button");
     // trans_prompt_btn.id = "trans_prompt_btn";
     trans_prompt_btn.innerHTML = "🗚";
-    trans_prompt_btn.className = "gr-button gr-button-lg gr-button-tool";
+    trans_prompt_btn.className = "gr-button gr-button-lg gr-button-tool lg secondary gradio-button tool";
     // trans_prompt_btn.style.borderColor = "#e5e7eb";
     trans_prompt_btn.style.border = "none";
     trans_prompt_btn.title = "Translate Prompt";
@@ -132,7 +167,7 @@ onUiLoaded(() => {
     let trans_neg_prompt_btn = document.createElement("button");
     // trans_neg_prompt_btn.id = "trans_neg_prompt_btn";
     trans_neg_prompt_btn.innerHTML = "🗛";
-    trans_neg_prompt_btn.className = "gr-button gr-button-lg gr-button-tool";
+    trans_neg_prompt_btn.className = "gr-button gr-button-lg gr-button-tool lg secondary gradio-button tool";
     // trans_neg_prompt_btn.style.borderColor = "#e5e7eb";
     trans_neg_prompt_btn.style.border = "none";
     trans_neg_prompt_btn.title = "Translate Negative Prompt";
@@ -140,7 +175,7 @@ onUiLoaded(() => {
     let switch_prompt_btn = document.createElement("button");
     // switch_prompt_btn.id = "switch_prompt_btn";
     switch_prompt_btn.innerHTML = "⇄";
-    switch_prompt_btn.className = "gr-button gr-button-lg gr-button-tool";
+    switch_prompt_btn.className = "gr-button gr-button-lg gr-button-tool lg secondary gradio-button tool";
     // switch_prompt_btn.style.borderColor = "#e5e7eb";
     switch_prompt_btn.style.border = "none";
     switch_prompt_btn.title = "Switch prompt between Native language and English";
@@ -149,7 +184,7 @@ onUiLoaded(() => {
     let switch_neg_prompt_btn = document.createElement("button");
     // switch_neg_prompt_btn.id = "switch_neg_prompt_btn";
     switch_neg_prompt_btn.innerHTML = "↹";
-    switch_neg_prompt_btn.className = "gr-button gr-button-lg gr-button-tool";
+    switch_neg_prompt_btn.className = "gr-button gr-button-lg gr-button-tool lg secondary gradio-button tool";
     // switch_neg_prompt_btn.style.borderColor = "#e5e7eb";
     switch_neg_prompt_btn.style.border = "none";
     switch_neg_prompt_btn.title = "Switch negative prompt between Native language and English";
@@ -157,28 +192,28 @@ onUiLoaded(() => {
     // target language
     let tar_lang_drop = document.createElement("select");
     tar_lang_drop.className = "gr-box gr-input";
+    tar_lang_drop.style.borderRadius = "8px";
+    tar_lang_drop.style.backgroundColor = "#1f2937";
     // tar_lang_drop.style.borderColor = "#e5e7eb";
     tar_lang_drop.style.border = "none";
     tar_lang_drop.title = "Target language";
     // get tar_lang dropdown from extension tab
-    let pt_tar_lang_drop = gradioApp().querySelector("#pt_tar_lang select");
-    if (pt_tar_lang_drop) {
-        // create options
-        for (const option of pt_tar_lang_drop.options) {
-            let tar_lang_drop_option = document.createElement("option");
-            tar_lang_drop_option.value = option.value;
-            tar_lang_drop_option.innerHTML = option.value;
-            // add to list
-            tar_lang_drop.appendChild(tar_lang_drop_option)
-        }
+    // create options
+    for (const option of tar_lang_list) {
+        let tar_lang_drop_option = document.createElement("option");
+        tar_lang_drop_option.value = option;
+        tar_lang_drop_option.innerHTML = option;
+        // add to list
+        tar_lang_drop.appendChild(tar_lang_drop_option)
     }
-    pt_tar_lang_drop.selectedIndex = 0;
+    tar_lang_drop.selectedIndex = 0;
 
     //link to deepl
     let deepl_link = document.createElement("a");
     deepl_link.id = "switch_prompt_btn";
     deepl_link.innerHTML = "d";
-    deepl_link.className = "gr-button gr-button-lg gr-button-tool";
+    deepl_link.className = "gr-button gr-button-lg gr-button-tool lg secondary gradio-button tool";
+    deepl_link.style.marginLeft = "10px";
     // deepl_link.style.borderColor = "#e5e7eb";
     deepl_link.title = "Link to DeepL";
     deepl_link.href = "https://www.deepl.com/";
@@ -195,14 +230,10 @@ onUiLoaded(() => {
 
     //add onchange to dropdown
     tar_lang_drop.onchange = function(){
-        //set tar_lang_drop's value of extension tab
-        let pt_tar_lang_drop = gradioApp().querySelector("#pt_tar_lang select");
-        if (pt_tar_lang_drop) {
-            pt_tar_lang_drop.selectedIndex = tar_lang_drop.selectedIndex
-            // trigger event to tell gradio
-            pt_tar_lang_drop.dispatchEvent(new Event("change"));
-            pt_tar_lang_drop.dispatchEvent(new Event("input"));
-        }
+
+        //fill selected value to pt_translated_neg_prompt
+        pt_translated_neg_prompt.value = tar_lang_drop.value;
+        pt_translated_neg_prompt.dispatchEvent(new Event("input"));
 
     }
 
