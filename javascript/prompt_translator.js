@@ -193,8 +193,9 @@ onUiLoaded(() => {
     let tar_lang_drop = document.createElement("select");
     tar_lang_drop.className = "gr-box gr-input";
     tar_lang_drop.style.borderRadius = "8px";
-    tar_lang_drop.style.backgroundColor = "#1f2937";
+    // tar_lang_drop.style.backgroundColor = "#1f2937";
     // tar_lang_drop.style.borderColor = "#e5e7eb";
+    tar_lang_drop.style.color = "#2c2c2c";
     tar_lang_drop.style.border = "none";
     tar_lang_drop.title = "Target language";
     // get tar_lang dropdown from extension tab
