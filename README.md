@@ -42,7 +42,9 @@ There is a button for "Get Free API Key" at Step 3.
 
 Do that to get your APP ID and APP Key, then fill them into this extension.  
 
-I don't know the detail for that. I don't use yandex. The code for yandex is provided by pull request and the code looks good so I merged it. But no document for that. You need to try it yourself.  
+With Yandex, APP ID is called `Folder ID`, APP Key is called `IAM token`.  
+
+I don't know the detail for using Yandex. I don't use yandex. The code for yandex is provided by pull request and the code looks good so I merged it. But no document for that. You need to try it yourself.    
 
 ### Setup for Google translation API Key [check](https://cloud.google.com/translate/docs/setup?hl=en)
 **Note: Google API does not offer any free words per month, and setup is kind of complex for normal user. Only choose google when you can not use other service.**  
