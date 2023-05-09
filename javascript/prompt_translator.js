@@ -158,7 +158,7 @@ onUiLoaded(() => {
     //create buttons
     let trans_prompt_btn = document.createElement("button");
     // trans_prompt_btn.id = "trans_prompt_btn";
-    trans_prompt_btn.innerHTML = "🗚";
+    trans_prompt_btn.innerHTML = "<span style='font-size: 90%'>A</span><span style='font-size: 120%'>A</span>";
     trans_prompt_btn.className = "gr-button gr-button-lg gr-button-tool lg secondary gradio-button tool";
     // trans_prompt_btn.style.borderColor = "#e5e7eb";
     trans_prompt_btn.style.border = "none";
@@ -166,7 +166,7 @@ onUiLoaded(() => {
 
     let trans_neg_prompt_btn = document.createElement("button");
     // trans_neg_prompt_btn.id = "trans_neg_prompt_btn";
-    trans_neg_prompt_btn.innerHTML = "🗛";
+    trans_neg_prompt_btn.innerHTML = "<span style='font-size: 120%'>A</span><span style='font-size: 90%'>A</span>";
     trans_neg_prompt_btn.className = "gr-button gr-button-lg gr-button-tool lg secondary gradio-button tool";
     // trans_neg_prompt_btn.style.borderColor = "#e5e7eb";
     trans_neg_prompt_btn.style.border = "none";
